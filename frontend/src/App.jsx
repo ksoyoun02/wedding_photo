@@ -45,7 +45,7 @@ function App() {
     formData.append("phone", phone);
 
     try {
-      const res = await fetch("http://localhost:8080/upload", {
+      const res = await fetch(`http://localhost:8080/upload?name=${encodeURIComponent(name)}`, {
         method: "POST",
         body: formData,
       });

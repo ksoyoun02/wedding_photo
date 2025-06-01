@@ -15,15 +15,34 @@ if (!fs.existsSync(uploadPath)) {
 }
 
 app.use(cors());
-app.use('/uploads', express.static(uploadPath));
+app.use('/upload', (req, res, next) => {
+  const name = req.query.name?.trim() || 'default';
+  const basePath = path.join(__dirname, 'uploads');
+  let folderName = name;
+  let fullPath = path.join(basePath, folderName);
+  let count = 1;
+
+  // 이름 중복 시 뒤에 -1, -2 붙이기
+  while (fs.existsSync(fullPath)) {
+    folderName = `${name}-${count++}`;
+    fullPath = path.join(basePath, folderName);
+  }
+
+  fs.mkdirSync(fullPath, { recursive: true });
+  req.uploadDir = fullPath; // 이후 multer에서 사용하게 넣어줌
+  next();
+});
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadPath),
+  destination: (req, file, cb) => {
+    cb(null, req.uploadDir); // 미들웨어에서 만든 폴더 사용
+  },
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + '_' + file.originalname;
     cb(null, uniqueName);
-  }
+  },
 });
+
 
 // 이미지와 비디오만 필터링
 const fileFilter = (req, file, cb) => {
@@ -38,9 +57,6 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter });
 
 app.post('/upload', upload.array('files'), (req, res) => {
-    //const name = req.body.name;
-    //const phone = req.body.phone;
-
     const urls = req.files.map(file => `/uploads/${file.filename}`);
     res.json({ urls });
 });
