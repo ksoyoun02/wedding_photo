@@ -74,10 +74,10 @@ function UploadPage() {
 
       <div className="upload-section">
         <label className="upload-label">
-          파일 업로드
+          업로드
           <input type="file" accept="image/*,video/*" multiple onChange={handleFileChange} hidden />
         </label>
-        <button onClick={handleUpload}>저장</button>
+        <button className="submit-label" onClick={handleUpload}>저장</button>
       </div>
 
       <div className="thumbnail-grid">

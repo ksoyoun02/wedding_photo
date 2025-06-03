@@ -104,6 +104,15 @@ input[type="file"] {
     font-size: 12px;
     padding: 8px 12px;
   }
+  .upload-section button{
+    margin-bottom: 10px;
+    color: white;
+    background-color: #c4abff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
 }
 
 /* 화면 너비 320px 이하일 때 (작은 모바일) */
