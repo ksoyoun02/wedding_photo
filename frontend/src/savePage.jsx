@@ -1,6 +1,6 @@
 // src/savePage.jsx
 import React, { useState } from 'react';
-import './savePage.css';
+import './css/savePage.css';
 
 function SavePage({ onClose, onConfirm }) {
   const [name, setName] = useState('');

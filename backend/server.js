@@ -8,6 +8,8 @@ const fs = require('fs');
 const app = express();
 const PORT = 8080;
 
+app.use(express.static(path.join(__dirname, 'static')));
+
 // uploads 폴더가 없으면 생성
 const uploadPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadPath)) {
