@@ -2,12 +2,16 @@ import { useState } from 'react';
 import './css/App.css';
 import SavePage from './savePage';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 function UploadPage() {
   const [mediaList, setMediaList] = useState([]);
   const [showSavePage, setShowSavePage] = useState(false);
   const navigate = useNavigate();
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadPercent, setUploadPercent] = useState(0);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files).filter((file) =>
@@ -47,15 +51,32 @@ function UploadPage() {
     formData.append("name", name);
     formData.append("phone", phone);
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/upload?name=${encodeURIComponent(name)}`, {
-        method: "POST",
-        body: formData,
-      });
+    const startTime = Date.now();
 
-      if (!res.ok) throw new Error("업로드 실패");
+    try {
+
+      setUploading(true);
+      setUploadPercent(0);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/upload?name=${encodeURIComponent(name)}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+            setUploadPercent(percent);
+          },
+        }
+      );
+
+      if (res.status !== 200) throw new Error("업로드 실패");
+      setUploading(false);
       navigate("/successPage");
     } catch (err) {
+      setUploading(false);
       console.error("Upload error:", err);
       alert("파일 업로드 중 문제가 발생했습니다.");
     }
@@ -69,7 +90,18 @@ function UploadPage() {
           onConfirm={handleConfirmSave}
         />
       )}
-      
+
+      {uploading && (
+        <div className="upload-overlay">
+          <div className="upload-progress-container">
+            <div className="upload-progress-bar">
+              <div className="upload-progress-fill" style={{ width: `${uploadPercent}%` }} />
+            </div>
+            <div className="upload-progress-text">{uploadPercent}% 업로드 중...</div>
+          </div>
+        </div>
+      )}
+
       <h1>미디어 업로드</h1>
 
       <div className="upload-section">
